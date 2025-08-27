@@ -2,6 +2,14 @@
 
 Note that as of Cldr Locale Display version 1.5.0, Elixir 1.12 or later is required.
 
+## Cldr Locale Display v1.6.1
+
+This is the changelog for Cldr Locale Display v1.6.1 released on August 27th, 2025.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_locale_display/tags)
+
+### Bug Fixes
+
+* Use `:daylight` not `:daylight_savings` in the generated module backend. This is to align with ex_cldr version 2.43.0 and later.
+
 ## Cldr Locale Display v1.6.0
 
 This is the changelog for Cldr Locale Display v1.6.0 released on March 18th, 2025.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_locale_display/tags)

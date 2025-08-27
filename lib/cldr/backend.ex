@@ -242,7 +242,7 @@ defmodule Cldr.LocaleDisplay.Backend do
           time_zone_names = time_zone.zone
 
           region_format = time_zone.region_format.generic
-          daylight_format = time_zone.region_format.daylight_savings
+          daylight_format = time_zone.region_format.daylight
           standard_format = time_zone.region_format.standard
 
           def display_names(unquote(locale_name)) do
