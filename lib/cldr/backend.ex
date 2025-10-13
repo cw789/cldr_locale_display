@@ -146,19 +146,19 @@ defmodule Cldr.LocaleDisplay.Backend do
 
         ### Examples
 
-            iex> #{inspect(__MODULE__)}.display_name! "en"
+            iex> #{inspect(__MODULE__)}.display_name!(:en)
             "English"
 
-            iex> #{inspect(__MODULE__)}.display_name! "en-US"
+            iex> #{inspect(__MODULE__)}.display_name!(:"en-US")
             "English (United States)"
 
-            iex> #{inspect(__MODULE__)}.display_name! "en-US", language_display: :dialect
+            iex> #{inspect(__MODULE__)}.display_name!(:"en-US", language_display: :dialect)
             "American English"
 
-            iex> #{inspect(__MODULE__)}.display_name! "en-US-u-ca-gregory-cu-aud", language_display: :dialect
+            iex> #{inspect(__MODULE__)}.display_name!("en-US-u-ca-gregory-cu-aud", language_display: :dialect)
             "American English (Gregorian Calendar, Currency: A$)"
 
-            iex> #{inspect(__MODULE__)}.display_name! "en-US-u-ca-gregory-cu-aud", locale: "fr", language_display: :dialect
+            iex> #{inspect(__MODULE__)}.display_name!("en-US-u-ca-gregory-cu-aud", locale: "fr", language_display: :dialect)
             "anglais américain (calendrier grégorien, devise : A$)"
 
         """
@@ -178,14 +178,12 @@ defmodule Cldr.LocaleDisplay.Backend do
 
         ### Arguments
 
-        * `locale` is any language tag returned by
-          `#{inspect(__MODULE__)}.new/1`
-          or a locale name in the list returned by
-          `#{inspect(config.backend)}.known_locale_names/0`
+        * `language_tag` is any `t:Cldr.LanguageTag` or
+          a binary locale name.
 
         ### Returns
 
-        * A map of locale display names
+        * A map of locale display names.
 
         ### Examples
 
@@ -205,14 +203,12 @@ defmodule Cldr.LocaleDisplay.Backend do
 
         ### Arguments
 
-        * `locale` is any language tag returned by
-          `#{inspect(__MODULE__)}.new/1`
-          or a locale name in the list returned by
-          `#{inspect(config.backend)}.known_locale_names/0`
+        * `language_tag` is any `t:Cldr.LanguageTag` or
+          a binary locale name.
 
         ### Returns
 
-        * A map of locale time zone names
+        * A map of locale time zone names.
 
         ### Examples
 
