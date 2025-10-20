@@ -232,8 +232,15 @@ defmodule Cldr.LocaleDisplay.Backend do
         def territory_standard_format(locale)
 
         for locale_name <- Cldr.Locale.Loader.known_locale_names(config) do
-          locale = Cldr.Locale.Loader.get_locale(locale_name, config)
-          locale_display_names = locale.locale_display_names
+          locale =
+            Cldr.Locale.Loader.get_locale(locale_name, config)
+
+          locale_display_names =
+            locale
+            |> Map.fetch!(:locale_display_names)
+            |> Map.put(:language, locale.languages)
+            |> Map.put(:territory, locale.territories)
+
           time_zone = locale.dates.time_zone_names
           time_zone_names = time_zone.zone
 

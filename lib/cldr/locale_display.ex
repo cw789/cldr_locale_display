@@ -294,7 +294,7 @@ defmodule Cldr.LocaleDisplay do
 
     [language_name, subtags]
     |> Cldr.Substitution.substitute(locale_pattern)
-    |> :erlang.iolist_to_binary()
+    |> List.to_string()
   end
 
   defp subtag_names(_locale, [], _display_names, _prefer) do
@@ -343,7 +343,7 @@ defmodule Cldr.LocaleDisplay do
   end
 
   def get_display_preference(values, preference) when is_map(values) do
-    Map.get(values, preference) || Map.fetch!(values, :default)
+    Map.get(values, preference) || Map.fetch!(values, :standard)
   end
 
   defp join_subtags([], _display_names) do

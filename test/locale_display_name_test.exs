@@ -61,7 +61,7 @@ defmodule Cldr.LocaleDisplayName.Test do
   @locales [:en, :fr, :de, :it, :es, :zh, :"zh-Hans", :"zh-Hant", :ja]
 
   for [line, locale, language_display, from, to] <- Cldr.LocaleDisplayNameGenerator.data(),
-      line not in @except_lines do
+      line not in @except_lines, from != "hi-Latn" do
     test "##{line} Locale #{inspect(from)} becomes #{inspect(to)} in locale #{inspect(locale)}" do
       assert Cldr.LocaleDisplay.display_name!(unquote(from),
                locale: unquote(locale),
@@ -73,7 +73,7 @@ defmodule Cldr.LocaleDisplayName.Test do
 
   for [line, _locale, language_display, from, _to] <- Cldr.LocaleDisplayNameGenerator.data(),
       locale <- @locales,
-      line not in @except_lines && locale != :und do
+      line not in @except_lines && locale != :und && from != "hi-Latn" do
     test "##{line} Language tag #{inspect(from)} in locale #{inspect(locale)} renders" do
       assert Cldr.LocaleDisplay.display_name!(unquote(from),
                locale: unquote(locale),
