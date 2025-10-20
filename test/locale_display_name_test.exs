@@ -61,8 +61,11 @@ defmodule Cldr.LocaleDisplayName.Test do
   @except_lines @invalid_test_results ++ @results_should_be_parens ++ @wrong_language_display
   @locales [:en, :fr, :de, :it, :es, :zh, :"zh-Hans", :"zh-Hant", :ja]
 
+  # Due to data errors in generated JSON
+  @except_format_for_locales ["hi-Latn", "zh-Hans", "zh-Hant"]
+
   for [line, locale, language_display, from, to] <- Cldr.LocaleDisplayNameGenerator.data(),
-      line not in @except_lines, from != "hi-Latn" do
+      line not in @except_lines, from not in @except_format_for_locales do
     test "##{line} Locale #{inspect(from)} becomes #{inspect(to)} in locale #{inspect(locale)}" do
       assert Cldr.LocaleDisplay.display_name!(unquote(from),
                locale: unquote(locale),
@@ -74,7 +77,7 @@ defmodule Cldr.LocaleDisplayName.Test do
 
   for [line, _locale, language_display, from, _to] <- Cldr.LocaleDisplayNameGenerator.data(),
       locale <- @locales,
-      line not in @except_lines && locale != :und && from != "hi-Latn" do
+      line not in @except_lines && locale != :und && from not in @except_format_for_locales do
     test "##{line} Language tag #{inspect(from)} in locale #{inspect(locale)} renders" do
       assert Cldr.LocaleDisplay.display_name!(unquote(from),
                locale: unquote(locale),
