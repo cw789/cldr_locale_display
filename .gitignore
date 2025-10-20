@@ -21,3 +21,5 @@ erl_crash.dump
 
 # asfg
 .tool-versions
+
+mise.toml

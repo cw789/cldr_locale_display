@@ -70,7 +70,7 @@ defmodule Cldr.LocaleDisplay.U do
   defp get(:dx, _key_name, value, _locale, _in_locale, display_names) do
     case get_script(value, display_names) do
       nil -> nil
-      script -> String.downcase(script)
+      %{standard: script} -> String.downcase(script)
     end
   end
 

@@ -9,52 +9,53 @@ defmodule Cldr.LocaleDisplayName.Test do
   # * 344, 345 appear to have the wrong timezone returned
   # * 21,41 includes a field for a -u- tag that is invalid
   @invalid_test_results [21, 41, 344, 345, 1556, 1569, 1686, 1699]
+  @invalid_test_results [41]
 
   # These have test results with [] but I think they should remain ()
   # since there are no subtags or extensions.
   @results_should_be_parens [
-    396,
-    474,
-    500,
-    786,
-    864,
-    942,
-    1124,
-    1203,
-    1254,
-    1358,
-    1384,
-    1538,
-    1928,
-    2008,
-    2188,
-    2214,
-    2242,
-    2254,
-    2268,
-    2294,
-    2500,
-    2554,
-    2580,
-    2684,
-    2708,
-    2942,
-    2968,
-    2994,
-    3020,
-    3022,
-    3126,
-    3152,
-    3178
+    # 396,
+    # 474,
+    # 500,
+    # 786,
+    # 864,
+    # 942,
+    # 1124,
+    # 1203,
+    # 1254,
+    # 1358,
+    # 1384,
+    # 1538,
+    # 1928,
+    # 2008,
+    # 2188,
+    # 2214,
+    # 2242,
+    # 2254,
+    # 2268,
+    # 2294,
+    # 2500,
+    # 2554,
+    # 2580,
+    # 2684,
+    # 2708,
+    # 2942,
+    # 2968,
+    # 2994,
+    # 3020,
+    # 3022,
+    # 3126,
+    # 3152,
+    # 3178
   ]
 
   # The test results for these are what would be generated with
   # language_display: :standard, but the test specifies language_tag: :dialect
   @wrong_language_display [
-    2370,
-    2374,
-    2375,
-    2371
+    # 2370,
+    # 2374,
+    # 2375,
+    # 2371
   ]
 
   @except_lines @invalid_test_results ++ @results_should_be_parens ++ @wrong_language_display
