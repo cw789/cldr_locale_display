@@ -5,64 +5,18 @@ defmodule Cldr.LocaleDisplayName.Test do
   doctest MyApp.Cldr.LocaleDisplay
 
   # These tests have issues:
-  # * 1566, 1569, 1686, 1699 seem to have the incorrect test result in the data
-  # * 344, 345 appear to have the wrong timezone returned
   # * 21,41 includes a field for a -u- tag that is invalid
-  @invalid_test_results [21, 41, 344, 345, 1556, 1569, 1686, 1699]
   @invalid_test_results [41]
-
-  # These have test results with [] but I think they should remain ()
-  # since there are no subtags or extensions.
-  @results_should_be_parens [
-    # 396,
-    # 474,
-    # 500,
-    # 786,
-    # 864,
-    # 942,
-    # 1124,
-    # 1203,
-    # 1254,
-    # 1358,
-    # 1384,
-    # 1538,
-    # 1928,
-    # 2008,
-    # 2188,
-    # 2214,
-    # 2242,
-    # 2254,
-    # 2268,
-    # 2294,
-    # 2500,
-    # 2554,
-    # 2580,
-    # 2684,
-    # 2708,
-    # 2942,
-    # 2968,
-    # 2994,
-    # 3020,
-    # 3022,
-    # 3126,
-    # 3152,
-    # 3178
-  ]
 
   # The test results for these are what would be generated with
   # language_display: :standard, but the test specifies language_tag: :dialect
-  @wrong_language_display [
-    # 2370,
-    # 2374,
-    # 2375,
-    # 2371
-  ]
+  @wrong_language_display []
 
-  @except_lines @invalid_test_results ++ @results_should_be_parens ++ @wrong_language_display
+  @except_lines @invalid_test_results ++ @wrong_language_display
   @locales [:en, :fr, :de, :it, :es, :zh, :"zh-Hans", :"zh-Hant", :ja]
 
   # Due to data errors in generated JSON
-  @except_format_for_locales ["hi-Latn", "zh-Hans", "zh-Hant"]
+  @except_format_for_locales ["hi-Latn", "zh-Hans", "zh-Hant", "zh-Hans-fonipa"]
 
   for [line, locale, language_display, from, to] <- Cldr.LocaleDisplayNameGenerator.data(),
       line not in @except_lines, from not in @except_format_for_locales do
