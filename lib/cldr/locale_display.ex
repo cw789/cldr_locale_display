@@ -286,7 +286,7 @@ defmodule Cldr.LocaleDisplay do
   defp format_display_name(language_name, subtag_names, extension_names, display_names) do
     language_name = replace_parens_with_brackets(language_name)
     locale_pattern = get_in(display_names, [:locale_display_pattern, :locale_pattern])
-    IO.inspect {language_name, subtag_names, extension_names}
+
     subtags =
       [subtag_names, extension_names]
       |> Enum.reject(&empty?/1)

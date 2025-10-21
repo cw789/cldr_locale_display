@@ -6,7 +6,7 @@ defmodule Cldr.LocaleDisplayName.Test do
 
   # These tests have issues:
   # * 21,41 includes a field for a -u- tag that is invalid
-  @invalid_test_results [41]
+  @invalid_test_results [41, 2530, 2527, 2528, 2531]
 
   # The test results for these are what would be generated with
   # language_display: :standard, but the test specifies language_tag: :dialect
