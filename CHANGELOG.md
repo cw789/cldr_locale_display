@@ -2,6 +2,14 @@
 
 Note that as of Cldr Locale Display version 1.5.0, Elixir 1.12 or later is required.
 
+## Cldr Locale Display v1.7.0
+
+This is the changelog for Cldr Locale Display v1.7.0 released on ______, 2025.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_locale_display/tags)
+
+### Enhancements
+
+* Updates to [CLDR 48](https://cldr.unicode.org/downloads/cldr-48) data and tests.
+
 ## Cldr Locale Display v1.6.2
 
 This is the changelog for Cldr Locale Display v1.6.2 released on October 14th, 2025.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_locale_display/tags)

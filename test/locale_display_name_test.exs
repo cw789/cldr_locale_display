@@ -60,10 +60,10 @@ defmodule Cldr.LocaleDisplayName.Test do
     assert Cldr.display_name(~l(zh-Hans), language_display: :dialect) ==
              "Simplified Chinese (China)"
 
-    assert Cldr.display_name(~l(zh-Hant)u) == "Chinese (Traditional)"
-    assert Cldr.display_name(~l(zh-Hans)u) == "Chinese (Simplified)"
-    assert Cldr.display_name(~l(zh-Hant)) == "Chinese (Traditional, Taiwan)"
-    assert Cldr.display_name(~l(zh-Hans)) == "Chinese (Simplified, China)"
+    assert Cldr.display_name(~l(zh-Hant)u) == "Traditional Chinese"
+    assert Cldr.display_name(~l(zh-Hans)u) == "Simplified Chinese"
+    assert Cldr.display_name(~l(zh-Hant)) == "Traditional Chinese (Taiwan)"
+    assert Cldr.display_name(~l(zh-Hans)) == "Simplified Chinese (China)"
   end
 
   test "More complex language tags" do

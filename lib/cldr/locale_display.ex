@@ -52,7 +52,7 @@ defmodule Cldr.LocaleDisplay do
 
   * `:prefer` signals the preferred name for
     a subtag when there are alternatives.
-    The default is `:default`. Few subtags
+    The default is `:standard`. Few subtags
     provide alternative renderings. Some of
     the alternative preferences are`:short`,
     `:long`, `:menu` and `:variant`.
@@ -116,8 +116,13 @@ defmodule Cldr.LocaleDisplay do
 
   def display_name(%LanguageTag{} = language_tag, options) do
     {in_locale, backend} = Cldr.locale_and_backend_from(options)
-    language_display = Keyword.get(options, :language_display, :standard)
-    prefer = Keyword.get(options, :prefer, :default)
+    options = Keyword.merge(default_options(), options)
+
+    standard_or_dialect = Keyword.get(options, :language_display)
+    prefer = Keyword.get(options, :prefer)
+
+    # FIXME Catering for legacy
+    prefer =  if prefer == :default, do: :standard, else: prefer
 
     with {:ok, in_locale} <- Cldr.validate_locale(in_locale, backend) do
       options = Keyword.put(options, :locale, in_locale)
@@ -125,39 +130,39 @@ defmodule Cldr.LocaleDisplay do
       {:ok, display_names} =
         Module.concat(in_locale.backend, :LocaleDisplay).display_names(in_locale)
 
-      match_fun = &language_match_fun(&1, &2, display_names.language)
+      match_fun =
+        &language_match_fun(&1, &2, :language, prefer, display_names)
 
-      case first_match(
-             language_tag,
-             match_fun,
-             @omit_script_if_only_one,
-             language_display,
-             prefer
-           ) do
-        {language_name, matched_tags} ->
-          language_tag = merge_extensions_and_private_use(language_tag)
+      {matched_tags, language_name} =
+        first_match(language_tag, match_fun, @omit_script_if_only_one, standard_or_dialect)
 
-          subtag_names =
-            language_tag
-            |> subtag_names(@basic_tag_order -- matched_tags, display_names, prefer)
-            |> List.flatten()
-            |> Enum.map(&replace_parens_with_brackets/1)
-            |> join_subtags(display_names)
+      language_tag =
+        merge_extensions_and_private_use(language_tag)
 
-          extension_names =
-            @extension_order
-            |> Enum.map(&Cldr.DisplayName.display_name(Map.fetch!(language_tag, &1), options))
-            |> Enum.reject(&empty?/1)
-            |> join_subtags(display_names)
+      subtag_names =
+        language_tag
+        |> subtag_names(@basic_tag_order -- matched_tags, prefer, display_names)
+        |> List.flatten()
+        |> Enum.map(&replace_parens_with_brackets/1)
+        |> join_subtags(display_names)
 
-          {:ok, format_display_name(language_name, subtag_names, extension_names, display_names)}
+      extension_names =
+        @extension_order
+        |> Enum.map(&Cldr.DisplayName.display_name(Map.fetch!(language_tag, &1), options))
+        |> Enum.reject(&empty?/1)
+        |> join_subtags(display_names)
 
-        nil ->
-          {:error,
-           {Cldr.DisplayName.NoDataError,
-            "The locale #{inspect(in_locale)} has no display name data."}}
-      end
+      {:ok, format_display_name(language_name, subtag_names, extension_names, display_names)}
     end
+  end
+
+  defp default_options do
+    [
+      prefer: :standard,
+      add_likely_subtags: false,
+      language_display: :standard,
+      prefer: :standar
+    ]
   end
 
   @doc """
@@ -186,7 +191,7 @@ defmodule Cldr.LocaleDisplay do
 
   * `:prefer` signals the preferred name for
     a subtag when there are alternatives.
-    The default is `:default`. Few subtags
+    The default is `:standard`. Few subtags
     provide alternative renderings. Some of
     the alternative preferences are`:short`,
     `:long`, `:menu` and `:variant`.
@@ -249,14 +254,8 @@ defmodule Cldr.LocaleDisplay do
 
   # If matching on the compound locale then we
   # don't need to take any action
-  defp first_match(language_tag, match_fun, omit_script_if_only_one?, :dialect, prefer) do
-    case Cldr.Locale.first_match(language_tag, match_fun, omit_script_if_only_one?) do
-      {language_name, matched_tags} ->
-        {get_display_preference(language_name, prefer), matched_tags}
-
-      nil ->
-        nil
-    end
+  defp first_match(language_tag, match_fun, omit_script_if_only_one?, :dialect) do
+    Cldr.Locale.first_match(language_tag, match_fun, omit_script_if_only_one?)
   end
 
   # If we don't want a compound language then we need to omit
@@ -264,15 +263,15 @@ defmodule Cldr.LocaleDisplay do
   # its generated as a subtag
   @reinstate_subtags [:territory, :script]
 
-  defp first_match(language_tag, match_fun, omit_script_if_only_one?, :standard, prefer) do
+  defp first_match(language_tag, match_fun, omit_script_if_only_one?, :standard) do
     language_tag =
       Enum.reduce(@reinstate_subtags, language_tag, fn key, tag ->
         Map.put(tag, key, nil)
       end)
 
     case Cldr.Locale.first_match(language_tag, match_fun, omit_script_if_only_one?) do
-      {language_name, matched_tags} ->
-        {get_display_preference(language_name, prefer), matched_tags -- @reinstate_subtags}
+      {matched_tags, display_name} ->
+        {matched_tags -- @reinstate_subtags, display_name}
 
       nil ->
         nil
@@ -297,11 +296,11 @@ defmodule Cldr.LocaleDisplay do
     |> List.to_string()
   end
 
-  defp subtag_names(_locale, [], _display_names, _prefer) do
+  defp subtag_names(_locale, [],  _prefer, _display_names) do
     []
   end
 
-  defp subtag_names(locale, subtags, display_names, prefer) do
+  defp subtag_names(locale, subtags, prefer, display_names) do
     subtags
     |> Enum.map(&get_display_name(locale, display_names, &1, prefer))
     |> Enum.reject(&empty?/1)
@@ -359,9 +358,9 @@ defmodule Cldr.LocaleDisplay do
     Enum.reduce(fields, &Cldr.Substitution.substitute([&2, &1], join_pattern))
   end
 
-  defp language_match_fun(locale_name, matched_tags, language_names) do
-    if display_name = Map.get(language_names, locale_name) do
-      {display_name, matched_tags}
+  defp language_match_fun(locale_name, matched_tags, field, prefer, display_names) do
+    if display_name = get_in(display_names, [field, locale_name, prefer]) do
+      {matched_tags, display_name}
     else
       nil
     end

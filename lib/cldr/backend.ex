@@ -51,7 +51,7 @@ defmodule Cldr.LocaleDisplay.Backend do
 
         * `:prefer` signals the preferred name for
           a subtag when there are alternatives.
-          The default is `:default`. Few subtags
+          The default is `:standard`. Few subtags
           provide alternative renderings. Some of
           the alternative preferences are `:short`,
           `:long`, `:menu` and `:variant`.
@@ -126,7 +126,7 @@ defmodule Cldr.LocaleDisplay.Backend do
 
         * `:prefer` signals the preferred name for
           a subtag when there are alternatives.
-          The default is `:default`. Few subtags
+          The default is `:standard`. Few subtags
           provide alternative renderings. Some of
           the alternative preferences are`:short`,
           `:long`, `:menu` and `:variant`.

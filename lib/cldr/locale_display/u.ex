@@ -126,25 +126,28 @@ defmodule Cldr.LocaleDisplay.U do
     backend_module.known_subdivisions(locale)[subdivision]
   end
 
-  def get_timezone(zone, locale) do
+  def get_timezone(timezone, locale) do
     backend_module = Module.concat(locale.backend, LocaleDisplay)
-    {:ok, zone_names} = backend_module.time_zone_names(locale)
     {:ok, territory_format} = backend_module.territory_format(locale)
-    zone_parts = String.split(zone, "/")
-    downcase_zone_parts = Enum.map(zone_parts, &String.downcase/1)
 
-    case get_in(zone_names, downcase_zone_parts) do
-      nil ->
-        derive_zone_name(zone, zone_names, downcase_zone_parts, zone_parts, territory_format)
+    with {:ok, display_name} <- timezone_display_name(timezone, locale) do
+      Cldr.Substitution.substitute([display_name], territory_format)
+    end
+  end
 
-      zone_map ->
-        case Map.get(zone_map, :exemplar_city) do
-          nil ->
-            derive_zone_name(zone, zone_names, downcase_zone_parts, zone_parts, territory_format)
+  def timezone_display_name(timezone, locale) do
+    cond do
+      territory = territory_has_only_this_zone(timezone) ->
+        Cldr.Territory.display_name(territory, locale: locale)
 
-          exemplar_city ->
-            Cldr.Substitution.substitute([exemplar_city], territory_format)
-        end
+      exemplar_city = exemplar_city(timezone, locale) ->
+        {:ok, exemplar_city}
+
+      derived_name = derive_zone_name(timezone, locale) ->
+        {:ok, derived_name}
+
+      true ->
+        {:ok, timezone}
     end
   end
 
@@ -153,21 +156,34 @@ defmodule Cldr.LocaleDisplay.U do
   # the second part as a city name by replacing "_" with " ". This applies to zones like
   # "America/Los_Angeles", "America/New_York" and so on.
 
-  defp derive_zone_name(zone, zone_names, downcase_zone_parts, zone_parts, territory_format) do
-    with [downcase_region, _downcase_city] <- downcase_zone_parts do
-      case Map.get(zone_names, downcase_region) do
-        nil ->
-          zone
+  defp derive_zone_name(zone, locale) do
+    backend_module = Module.concat(locale.backend, LocaleDisplay)
+    {:ok, zone_names} = backend_module.time_zone_names(locale)
+    zone_parts = String.split(zone, "/")
+    downcase_zone_parts = Enum.map(zone_parts, &String.downcase/1)
 
-        _region ->
-          [_region, city] = zone_parts
-          zone_name = String.replace(city, "_", " ")
-          Cldr.Substitution.substitute([zone_name], territory_format)
-      end
-    else
-      _other ->
-        zone
+    if Map.get(zone_names, hd(downcase_zone_parts)) do
+      zone_parts
+      |> List.last()
+      |> String.replace("_", " ")
     end
+  end
+
+  defp territory_has_only_this_zone(zone) do
+    territory = Cldr.Timezone.territories_by_timezone[zone]
+
+    if Cldr.Timezone.timezone_count_for_territory(territory) == 1 do
+      territory
+    end
+  end
+
+  defp exemplar_city(zone, locale) do
+    backend_module = Module.concat(locale.backend, LocaleDisplay)
+    {:ok, zone_names} = backend_module.time_zone_names(locale)
+    zone_parts = String.split(zone, "/")
+    downcase_zone_parts = Enum.map(zone_parts, &String.downcase/1)
+
+    get_in(zone_names, downcase_zone_parts ++ [:exemplar_city])
   end
 
   def get_currency(currency, locale) do
