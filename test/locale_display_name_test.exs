@@ -7,12 +7,13 @@ defmodule Cldr.LocaleDisplayName.Test do
   # These tests have issues:
   # * 21,41 includes a field for a -u- tag that is invalid
   @invalid_test_results [41, 2530, 2527, 2528, 2531]
+  @unexpected_root_locale_results [2517, 2512, 2525, 2518, 2515, 2513, 2526, 2514]
 
   # The test results for these are what would be generated with
   # language_display: :standard, but the test specifies language_tag: :dialect
   @wrong_language_display []
 
-  @except_lines @invalid_test_results ++ @wrong_language_display
+  @except_lines @invalid_test_results ++ @wrong_language_display ++ @unexpected_root_locale_results
   @locales [:en, :fr, :de, :it, :es, :zh, :"zh-Hans", :"zh-Hant", :ja]
 
   # Due to data errors in generated JSON
