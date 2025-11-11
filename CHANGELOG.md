@@ -2,6 +2,14 @@
 
 Note that as of Cldr Locale Display version 1.5.0, Elixir 1.12 or later is required.
 
+## Cldr Locale Display v1.7.1
+
+This is the changelog for Cldr Locale Display v1.7.1 released on November 11th, 2025.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_locale_display/tags)
+
+### Bug Fixes
+
+* Fix `Cldr.LocaleDisplay.display_name/2` when `prefer: :preference` and the display names for the language have no `:preference` data. Now when there is no `:preference`, the `:standard` display name is used. Thanks to @allenwyma for the report. Closes #8.
+
 ## Cldr Locale Display v1.7.0
 
 This is the changelog for Cldr Locale Display v1.7.0 released on November 6th, 2025.  For older changelogs please consult the release tag on [GitHub](https://github.com/elixir-cldr/cldr_locale_display/tags)
