@@ -359,10 +359,15 @@ defmodule Cldr.LocaleDisplay do
   end
 
   defp language_match_fun(locale_name, matched_tags, field, prefer, display_names) do
-    if display_name = get_in(display_names, [field, locale_name, prefer]) do
-      {matched_tags, display_name}
-    else
-      nil
+    cond do
+      display_name = get_in(display_names, [field, locale_name, prefer]) ->
+        {matched_tags, display_name}
+
+      display_name = get_in(display_names, [field, locale_name, :standard]) ->
+        {matched_tags, display_name}
+
+      true ->
+        nil
     end
   end
 

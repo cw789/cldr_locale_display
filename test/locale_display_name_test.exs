@@ -88,4 +88,12 @@ defmodule Cldr.LocaleDisplayName.Test do
              locale: "zh-Hans"
            )
   end
+
+  test "prefer: :short when there is no :short display name" do
+    assert "English (UK)" =
+      Cldr.LocaleDisplay.display_name!("en_GB", locale: "en_GB", prefer: :short)
+
+    assert "English (United Kingdom)" =
+      Cldr.LocaleDisplay.display_name!("en_GB", locale: "en_GB", prefer: :standard)
+  end
 end
