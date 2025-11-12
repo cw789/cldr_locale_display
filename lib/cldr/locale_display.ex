@@ -122,22 +122,16 @@ defmodule Cldr.LocaleDisplay do
     prefer = Keyword.get(options, :prefer)
 
     # FIXME Catering for legacy
-    prefer =  if prefer == :default, do: :standard, else: prefer
+    prefer = if prefer == :default, do: :standard, else: prefer
 
-    with {:ok, in_locale} <- Cldr.validate_locale(in_locale, backend) do
-      options = Keyword.put(options, :locale, in_locale)
-
-      {:ok, display_names} =
-        Module.concat(in_locale.backend, :LocaleDisplay).display_names(in_locale)
-
-      match_fun =
-        &language_match_fun(&1, &2, :language, prefer, display_names)
-
-      {matched_tags, language_name} =
-        first_match(language_tag, match_fun, @omit_script_if_only_one, standard_or_dialect)
-
-      language_tag =
-        merge_extensions_and_private_use(language_tag)
+    with {:ok, in_locale} <- Cldr.validate_locale(in_locale, backend),
+         options = Keyword.put(options, :locale, in_locale),
+         {:ok, display_names} =
+           Module.concat(in_locale.backend, :LocaleDisplay).display_names(in_locale),
+         match_fun = &language_match_fun(&1, &2, :language, prefer, display_names),
+         {:ok, {matched_tags, language_name}} <-
+           find_language_match(language_tag, match_fun, standard_or_dialect) do
+      language_tag = merge_extensions_and_private_use(language_tag)
 
       subtag_names =
         language_tag
@@ -152,7 +146,18 @@ defmodule Cldr.LocaleDisplay do
         |> Enum.reject(&empty?/1)
         |> join_subtags(display_names)
 
+      language_name = get_display_preference(language_name, prefer)
       {:ok, format_display_name(language_name, subtag_names, extension_names, display_names)}
+    end
+  end
+
+  defp find_language_match(language_tag, match_fun, standard_or_dialect) do
+    if result =
+         first_match(language_tag, match_fun, @omit_script_if_only_one, standard_or_dialect) do
+      {:ok, result}
+    else
+      {:error,
+       {Cldr.UnknownLocaleError, "The locale #{inspect(language_tag)} has no display name data."}}
     end
   end
 
@@ -161,7 +166,7 @@ defmodule Cldr.LocaleDisplay do
       prefer: :standard,
       add_likely_subtags: false,
       language_display: :standard,
-      prefer: :standar
+      prefer: :standard
     ]
   end
 
@@ -296,7 +301,7 @@ defmodule Cldr.LocaleDisplay do
     |> List.to_string()
   end
 
-  defp subtag_names(_locale, [],  _prefer, _display_names) do
+  defp subtag_names(_locale, [], _prefer, _display_names) do
     []
   end
 
@@ -342,7 +347,14 @@ defmodule Cldr.LocaleDisplay do
   end
 
   def get_display_preference(values, preference) when is_map(values) do
-    Map.get(values, preference) || Map.fetch!(values, :standard)
+    # Preference maps use atom keys like :standard, :menu, :short
+    # Compound locale maps use string keys like "core", "extension"
+    cond do
+      value = Map.get(values, preference) -> value
+      value = Map.get(values, :standard) -> value
+      value = Map.get(values, "core") -> value
+      true -> raise KeyError, key: preference, term: values
+    end
   end
 
   defp join_subtags([], _display_names) do
